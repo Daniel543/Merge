@@ -31,10 +31,10 @@ else {
 if (options.input[0][options.input[0].length - 1] === '/') {
 
 }
-else {
+/*else {
     lsCommand = lsCommand + "/";
 }
-
+ */
 exec("ls -d -1 " + lsCommand + "*", function (error, stdout, stderr) {
     //sys.print('stdout: ' + stdout);
     files = stdout;

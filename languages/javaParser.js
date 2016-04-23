@@ -15,8 +15,7 @@ module.exports = {
         }
 
         this.moveMethod = function (nieco) {
-
-
+            this.rpcClient.callMethod("moveMethod")
         }
     }
 
