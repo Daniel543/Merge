@@ -6,7 +6,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
-
+import java.io.FileOutputStream;
 /**
  * Created by Daniel on 4/18/16.
  */
@@ -24,7 +24,7 @@ public class AstParser {
 
     public boolean parseFile(String filename) {
         try {
-            this.in = new FileInputStream(filename);
+            this.in = new FileInputStream("/root/Matica.java");
         } catch (FileNotFoundException e) {
             return false;
         }
@@ -47,6 +47,8 @@ public class AstParser {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // System.out.println(baos);
         return baos.toString();
 
     }
@@ -64,5 +66,13 @@ public class AstParser {
         return true;
     }
 
+    public boolean moveMethod() {
+        return true;
+    }
+
+    public void testMethod() {
+        parseFile("dsa");
+        System.out.println("a");
+    }
 
 }
