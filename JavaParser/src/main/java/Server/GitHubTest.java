@@ -1,5 +1,6 @@
 package Server;
 
+import com.github.javaparser.ASTHelper;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
@@ -36,7 +37,7 @@ public class GitHubTest {
             e.printStackTrace();
         }
         CompilationUnit cu = getCompilationUnit(file1);
-        Node method = new Node() {
+        /*Node method = new Node() {
             @Override
             public <R, A> R accept(GenericVisitor<R, A> genericVisitor, A a) {
                 return null;
@@ -46,9 +47,9 @@ public class GitHubTest {
             public <A> void accept(VoidVisitor<A> voidVisitor, A a) {
 
             }
-        };
+        };*/
 
-        List<Node> childs = new ArrayList<Node>();
+        //List<Node> childs = new ArrayList<Node>();
        /* for (Node node : cu.getTypes()) {
             if (node instanceof ClassOrInterfaceDeclaration){
                 System.out.println(((ClassOrInterfaceDeclaration) node).getName());
@@ -57,8 +58,12 @@ public class GitHubTest {
                 }
             }
         }*/
-        new MyVisitor().visit(cu, "setMeno");
-        ;
+        ClassOrInterfaceDeclaration newClass = new ClassOrInterfaceDeclaration();
+        newClass.setName("SunkaSyr");
+        Arguments arguments = new Arguments("setMeno", newClass);
+        new MyVisitor().visit(cu, arguments);
+        System.out.println(newClass);
+        ASTHelper.addTypeDeclaration(cu, newClass);
 
         // cu.contains(Node method);
         String result = cu.toString();
