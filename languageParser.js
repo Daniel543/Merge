@@ -1,58 +1,57 @@
 var fs = require('fs')
-
 module.exports = {
 
-    parse: function (codeFiles, rules, language) {
+    parse: function (rules, language, outputDir) {
         if (language === "java") {
             var parser = require("./languages/javaParser");
         }
-        var methods;
-        var targetClass;
         var adapter = new parser.init();
-        var are_parsed;
-        adapter.parseFiles(codeFiles, function (value) {
-            if (value !== true) {
-                console.error("There was problem parsing data");
-                process.exit(1);
-            }
-
-            for (var i in rules) {
-                var contents = fs.readFileSync(rules[i], 'utf8')
-                var contents_array = contents.split('\n');
-                contents_array.length = contents_array.length - 1;
-                targetClass = findTargetClass(contents_array);
-                methods = getAllMethods(contents_array);
-                for (var j in methods) {
-                    adapter.moveMethod(targetClass, methods[j]);
-                }
-            
-            
-        }
+        var rulesString = fs.readFileSync(rules[0], "utf8")
+        var rulesJson = JSON.parse(rulesString);
 
 
-            function findTargetClass(contents_array) {
-                for (var j in contents_array) {
-                    if (contents_array[j] === "[TargetClass]") {
-                        return contents_array[++j];
+        adapter.getAst(rulesJson.src, function (sourceAst) {
+            adapter.getAst(rulesJson.dst, function (dstAst) {
+                adapter.moveMethod(sourceAst, dstAst, rulesJson.targetClass, rulesJson.methods[0].methodName, function (astArrayList) {
+                    var changedSourceAst = astArrayList[0];         //index 0 is source
+                    var changedDestinationAst = astArrayList[1];    //index 1 is destination
+                    var same = false;
+                    if (rulesJson.src === rulesJson.dst) {
+                        same = true;
                     }
-                }
-            }
+                    if (!same) {
+                        adapter.getCode(changedSourceAst, function (changedSourceCode) {
+                            adapter.getCode(changedDestinationAst, function (changedDestCode) {
+                                if (outputDir === undefined) {
+                                    console.log("SOURCE FILE:\n" + changedSourceCode)
+                                    console.log("DESTINATION FILE:\n" + changedDestCode)
+                                }
+                                else {
+                                    fs.writeFileSync(outputDir + "changedCode_source.java", changedSourceCode, 'utf8');
+                                    fs.writeFileSync(outputDir + "changedCode_dest.java", changedDestCode, 'utf8');
+                                    adapter.exitServer();
 
-            function getAllMethods(contents_array) {
-                var methods = [];
-                for (var j in contents_array) {
-                    if (contents_array[j] === "[Methods]") {
-                        j++;
-                        while (contents_array[j] !== '[/Methods]') {
-                            methods.push(contents_array[j]);
-                            j++
-
-                        }
-                        return methods;
+                                }
+                            })
+                        })
                     }
-                }
-            }
-        });
+                    else {
+                        adapter.getCode(changedSourceAst, function (changedSourceCode) {
+                            if (outputDir === undefined) {
+                                console.log("CHANGED FILE: \n" + changedSourceCode)
+                            }
+                            else {
+                                fs.writeFileSync(outputDir + "changedCode.java", changedSourceCode, 'utf8');
+                                adapter.exitServer();
+                            }
+                        })
+                    }
+
+                })
+
+            })
+        })
+
     }
 }
 

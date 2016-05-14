@@ -8,15 +8,17 @@ module.exports = {
         this.codeFile = null;
 
         this.callMethod = function (nameOfMethod, args, callback) {
-            this.client.methodCall('parser.' + nameOfMethod, [args], function (error, value) {
-                if (error) {
-                    console.log('error:', error);
-                    console.log('req headers:', error.req && error.req._header);
-                    console.log('res code:', error.res && error.res.statusCode);
-                    console.log('res body:', error.body);
-                } else {
-                    if (callback !== undefined) {
-                        callback(value);
+            this.client.methodCall(nameOfMethod, [args], function (error, value) {
+                if (nameOfMethod !== "parseHandler.exit") {
+                    if (error) {
+                        console.log('error:', error);
+                        console.log('req headers:', error.req && error.req._header);
+                        console.log('res code:', error.res && error.res.statusCode);
+                        console.log('res body:', error.body);
+                    } else {
+                        if (callback !== undefined) {
+                            callback(value);
+                        }
                     }
                 }
             });
